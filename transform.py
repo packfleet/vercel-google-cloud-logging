@@ -32,9 +32,10 @@ def to_severity(level: str):
 
 def transform(vercel_log: dict, *, project: str, inplace=False) -> dict:
     log_entry = vercel_log if inplace else copy.deepcopy(vercel_log)
-    log_entry["logging.googleapis.com/trace"] = (
-        f"projects/{project}/traces/{vercel_log['requestId']}"
-    )
+    if vercel_log.get("requestId"):
+        log_entry["logging.googleapis.com/trace"] = (
+            f"projects/{project}/traces/{vercel_log['requestId']}"
+        )
     log_entry["severity"] = to_severity(log_entry.pop("level", None))
     log_entry["timestamp"] = to_timestamp(vercel_log["timestamp"])
     proxy = vercel_log.get("proxy", {})
